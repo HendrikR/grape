@@ -8,6 +8,7 @@ from lib.graph import Graph as GraphController
 from lib.mathemathical import *
 from gui.area import GraphArea
 from gui.vertex import Vertex
+from gui.edge import Edge
 
 class Graph(gtk.ScrolledWindow):
     def __init__(self, builder, changed_method):
@@ -226,7 +227,14 @@ class Graph(gtk.ScrolledWindow):
         return False
 
     def edit_edge(self):
-        pass
+        # TODO - Handle multiple edges
+        if len(self.graph.selected_vertices()) == 2:
+            v1 = self.graph.selected_vertices()[0]
+            v2 = self.graph.selected_vertices()[1]
+            edge = self.graph.find_edge(v1, v2)
+            self.graph.deselect_vertex(v1)
+            self.graph.deselect_vertex(v2)
+            edge_edit = Edge(self, edge)
 
     def select_area(self, event, area):
         if not area: return
@@ -410,7 +418,18 @@ class Graph(gtk.ScrolledWindow):
                 if not self.remove_edge():
                     self.select_vertex(event)
         elif event.button == 2:
-            pass
+            if self.action != None:
+                self.set_changed(True)
+            if self.action == None:
+                vertex = self.graph.find_by_position(self.last_position_clicked)
+                if vertex:
+                    self.select_vertex(event)
+                    self.action = "add_edge"
+                else:
+                    self.add_vertex()
+            elif self.action == "add_edge":
+                if not self.add_edge():
+                    self.select_vertex(event)
         elif event.button == 3:
             self.right_click_menu(event)
 
@@ -440,7 +459,7 @@ class Graph(gtk.ScrolledWindow):
             self.menu_add_vertex.connect("activate", execute_action, self.add_vertex)
             self.menu_remove_vertex.connect("activate", execute_action, self.remove_vertex)
             self.menu_edit_vertex.connect("activate", execute_action, self.edit_vertex)
-#            self.menu_edit_edge.connect("activate", )
+            self.menu_edit_edge.connect("activate", execute_action, self.edit_edge)
 
             self.menu.append(self.menu_add_vertex)
             self.menu.append(self.menu_remove_vertex)
@@ -458,6 +477,8 @@ class Graph(gtk.ScrolledWindow):
             self.menu_add_edge.set_sensitive(True)
             self.menu_remove_edge.set_sensitive(True)
             self.menu_edit_edge.set_sensitive(False)
+            if len(self.graph.selected_vertices()) == 2:
+                self.menu_edit_edge.set_sensitive(True)
         else:
             self.menu_add_vertex.set_sensitive(True)
             self.menu_edit_vertex.set_sensitive(False)

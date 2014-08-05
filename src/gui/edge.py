@@ -30,7 +30,7 @@ class Edge(object):
         self.treeview_properties.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
 
         self.treeview_create()
-        self.init_general_fields()
+        #self.init_general_fields()
         self.builder.connect_signals(self)
         self.screen.show_all()
 
