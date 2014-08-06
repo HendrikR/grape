@@ -92,6 +92,16 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkImageMenuItem" id="menu_file_export_dot">
+                        <property name="label">Export as DOT</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
+                        <signal name="activate" handler="menu_file_export_dot"/>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkImageMenuItem" id="menu_file_revert">
                         <property name="label">gtk-revert-to-saved</property>
                         <property name="visible">True</property>

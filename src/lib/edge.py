@@ -60,3 +60,6 @@ class Edge(object):
 
     def to_enforce(self):
         return str(self.id) +":"+ str(self.start.id) +"-"+ self.title +"->"+ str(self.end.id) +"\n"
+
+    def to_dot(self):
+        return "  "+ str(self.start.id) +" -> "+ str(self.end.id) +" [label=\""+ self.title + "\"]\n"

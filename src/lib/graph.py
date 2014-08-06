@@ -277,12 +277,12 @@ class Graph(object):
         return g
 
     def to_graphml(self):
-        str = '<graph id="1" edgedefault="directed">'
+        str = '<graph id="'+ self.title +'" edgedefault="directed">'
         for v in self.vertices:
             str += v.to_graphml()
         for v in self.edges:
             str += v.to_graphml()
-        str += '</graph>'
+        str += '</graph>\n'
         return str
 
     def to_enforce(self):
@@ -292,3 +292,13 @@ class Graph(object):
         for v in self.edges:
             str += v.to_enforce()
         return str
+    
+    def to_dot(self):
+        str = 'digraph '+ self.title +' {\n'
+        for v in self.vertices:
+            str += v.to_dot()
+        for v in self.edges:
+            str += v.to_dot()
+        str += '}\n'
+        return str
+        

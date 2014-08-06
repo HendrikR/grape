@@ -234,6 +234,12 @@ class Screen(object):
         if tab and self.notebook.get_n_pages() > 0:
             print tab.graph.to_enforce()
 
+    def menu_file_export_dot(self, widget):
+        self.logger.info("Exporting as DOT")
+        tab, i = self.current_tab()
+        if tab and self.notebook.get_n_pages() > 0:
+            print tab.graph.to_dot()
+
     def menu_file_revert(self, widget):
         self.logger.info("Reverting file")
         tab, page_number = self.current_tab()
