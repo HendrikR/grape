@@ -95,3 +95,16 @@ class Vertex(object):
                 point_min = point_min - 1
         return next_vertex
 
+    def to_graphml(self):
+        return ('    <node id="' + str(self.id) + '">\n'
+                '      <data key="label">' + self.title + '</data>\n'
+                '      <data key="fill_color">' + self.fill_color + '</data>\n'
+                '      <data key="border_color">' + self.border_color + '</data>\n'
+                '      <data key="size">' + str(self.size) + '</data>\n'
+                '      <data key="font_size">' + str(self.font_size) + '</data>\n'
+                '      <data key="positionx">' + str(self.position[0]) + '</data>\n'
+                '      <data key="positiony">' + str(self.position[1]) + '</data>\n'
+                '    </node>\n')
+
+    def to_enforce(self):
+    	return "(" + str(self.id) + ":" + self.title + ")\n"

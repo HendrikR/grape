@@ -276,3 +276,19 @@ class Graph(object):
         print g.edges(data=True)
         return g
 
+    def to_graphml(self):
+        str = '<graph id="1" edgedefault="directed">'
+        for v in self.vertices:
+            str += v.to_graphml()
+        for v in self.edges:
+            str += v.to_graphml()
+        str += '</graph>'
+        return str
+
+    def to_enforce(self):
+        str = ''
+        for v in self.vertices:
+            str += v.to_enforce()
+        for v in self.edges:
+            str += v.to_enforce()
+        return str

@@ -49,4 +49,14 @@ class Edge(object):
     def touches(self, vertex):
         return vertex == self.start or vertex == self.end
 
+    def to_graphml(self):
+        return ('    <edge id="'+ str(self.id) +'" source="'+ str(self.start.id) +'" target="'+ str(self.end.id) +'">\n'
+                '      <data key="label">' + self.title + '</data>\n'
+                '      <data key="directed">' + str(self.directed) + '</data>\n'
+                '      <data key="color">' + self.color + '</data>\n'
+                '      <data key="width">' + str(self.width) + '</data>\n'
+                '    </node>\n')
 
+
+    def to_enforce(self):
+        return str(self.id) +":"+ str(self.start.id) +"-"+ self.title +"->"+ str(self.end.id) +"\n"

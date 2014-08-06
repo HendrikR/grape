@@ -70,7 +70,7 @@ class Graph(gtk.ScrolledWindow):
         if not position:
             position = [(vadj.upper / 2), (hadj.upper / 2)]
 
-        print map(lambda x: int(x), position)
+        print(map(lambda x: int(x), position))
         hadj.set_value(position[0] - (hadj.page_size / 2))
         vadj.set_value(position[1] - (vadj.page_size / 2))
 
@@ -234,7 +234,8 @@ class Graph(gtk.ScrolledWindow):
             edge = self.graph.find_edge(v1, v2)
             self.graph.deselect_vertex(v1)
             self.graph.deselect_vertex(v2)
-            edge_edit = Edge(self, edge)
+            # TODO: This only works for 1 edge. 0 or more than 1 edges: fail.
+            edge_edit = Edge(self, edge[0])
 
     def select_area(self, event, area):
         if not area: return
@@ -399,7 +400,7 @@ class Graph(gtk.ScrolledWindow):
         self.queue_draw()
 
     def mouse_press(self, widget, event):
-        print event.get_coords()
+        print(event.get_coords())
         self.last_position_clicked = map(lambda v: v / self.area.zoom, event.get_coords())
 
         if event.button == 1:

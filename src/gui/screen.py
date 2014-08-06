@@ -221,6 +221,18 @@ class Screen(object):
                 self.tab_changed(tab)
 
             del file_chooser
+            
+    def menu_file_export_graphml(self, widget):
+        self.logger.info("Exporting as GraphML")
+        tab, i = self.current_tab()
+        if tab and self.notebook.get_n_pages() > 0:
+            print tab.graph.to_graphml()
+
+    def menu_file_export_enforce(self, widget):
+        self.logger.info("Exporting as ENFORCE")
+        tab, i = self.current_tab()
+        if tab and self.notebook.get_n_pages() > 0:
+            print tab.graph.to_enforce()
 
     def menu_file_revert(self, widget):
         self.logger.info("Reverting file")

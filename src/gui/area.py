@@ -144,6 +144,17 @@ class GraphArea(DrawingArea):
                     cairo.move_to(x1, y1)
                     
                     cairo.curve_to(x3, y3, x4, y4, x2, y2)
+
+                    # Draw label
+                    # TODO: auto-alignment w.r.t. the line's direction
+                    cairo.set_font_size(10.0)
+                    x_bearing, y_bearing, width, height = cairo.text_extents(edge.title)[:4]
+                    textx = x4
+                    texty = y4
+                    cairo.move_to(textx, texty)
+                    cairo.move_to(textx - width / 2 - x_bearing, texty - height - y_bearing - 5)
+                    cairo.show_text(edge.title)
+
                     cairo.stroke()
                     
                     if edge.directed:
@@ -172,9 +183,20 @@ class GraphArea(DrawingArea):
             cairo.set_source_color(gtk.gdk.Color(edge.color))
             cairo.set_line_width(edge.width)
 
-
+        
         cairo.move_to(x1, y1)
         cairo.line_to(x2, y2)
+
+        # Draw label
+        # TODO: auto-alignment w.r.t. the line's direction
+        cairo.set_font_size(10.0)
+        x_bearing, y_bearing, width, height = cairo.text_extents(edge.title)[:4]
+        textx = (x1 + x2) / 2
+        texty = (y1 + y2) / 2
+        cairo.move_to(textx, texty)
+        cairo.move_to(textx - width / 2 - x_bearing, texty - height - y_bearing - 5)
+        cairo.show_text(edge.title)
+
         cairo.stroke()
 
         if edge.directed:
