@@ -107,9 +107,9 @@ class Vertex(object):
                 '    </node>\n')
 
     def to_enforce(self):
-    	return "(" + str(self.id) + ":" + self.title + ")\n"
+    	return '(' + str(self.id) + ':' + self.title + ')\n'
 
     def to_dot(self):
         return ('  '+ str(self.id) +' ['
-                'label=\"' + self.title +'\", '
-                'color=' + self.fill_color +']\n')
+                'label="' + self.title +'", '
+                'color="' + self.fill_color +'"]\n')
