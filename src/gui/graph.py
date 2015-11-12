@@ -400,7 +400,6 @@ class Graph(gtk.ScrolledWindow):
         self.queue_draw()
 
     def mouse_press(self, widget, event):
-        print((event.get_coords()))
         self.last_position_clicked = [v / self.area.zoom for v in event.get_coords()]
 
         if event.button == 1:
@@ -408,6 +407,8 @@ class Graph(gtk.ScrolledWindow):
                 self.set_changed(True)
             if self.action == None:
                 self.select_vertex(event)
+                if event.type == gtk.gdk._2BUTTON_PRESS:
+                    self.edit_vertex()
             elif self.action == "add_vertex":
                 self.add_vertex()
             elif self.action == "remove_vertex":

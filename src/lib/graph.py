@@ -6,6 +6,7 @@ import os
 from lib.config import Config
 from lib.vertex import Vertex
 from lib.edge import Edge
+from lib.hyperedge import Hyperedge
 
 # import networkx as nx
 
@@ -16,8 +17,10 @@ class Graph(object):
 
         self.vertex_id = 0
         self.edge_id = 0
+        self.hyperedge_id = 0
         self.vertices = []
         self.edges = []
+        self.hyperedges = []
         self.title = title
         self.selected_vertices_cache = None
         self.path = None
@@ -77,6 +80,8 @@ class Graph(object):
             array = self.vertices
         elif what == "edge":
             array = self.edges
+        elif what == "hyperedge":
+            array = self.hyperedges
         else:
             return None
 
@@ -120,6 +125,9 @@ class Graph(object):
 
     def has_edge(self, edge):
         return edge in self.edges
+
+    def has_hyperedge(self, hyperedge):
+        return hyperedge in self.hyperedges
 
     # TODO - Header
 
