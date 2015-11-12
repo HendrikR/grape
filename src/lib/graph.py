@@ -155,7 +155,7 @@ class Graph(object):
     def remove_vertex(self, vertex):
         if vertex:
             to_be_removed = list(vertex.touching_edges)
-            map(lambda e: self.remove_edge(e), to_be_removed)
+            list(map(lambda e: self.remove_edge(e), to_be_removed))
             self.vertices.remove(vertex)
 
     def add_edge(self, start, end):
@@ -238,7 +238,7 @@ class Graph(object):
     def graph_to_networkx(self):
         g = None
 
-        print self.type
+        print(self.type)
         if self.type == 'Graph':
             g = nx.Graph(title=self.title)
         elif self.type == 'DiGraph':
@@ -272,8 +272,8 @@ class Graph(object):
                         if g[e.start.id][e.end.id][s]['id'] == e.id:
                             g[e.start.id][e.end.id][s][t_identifier] = t_value
 
-        print g.nodes(data=True)
-        print g.edges(data=True)
+        print(g.nodes(data=True))
+        print(g.edges(data=True))
         return g
 
     def to_graphml(self):

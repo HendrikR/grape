@@ -15,4 +15,4 @@ h2. Authors
 * Jonatas Teixeira
 * Luan Haddad Ricardo dos Santos
 * Oriented by "Alexandre Direne":http://www.inf.ufpr.br/alexd/ for "UFPR":http://www.ufpr.br's computers science degree and "C3SL":http://www.c3sl.ufpr.br group.
-
+* Hendrik Radke: Usability, Export functions

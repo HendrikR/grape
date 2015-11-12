@@ -70,7 +70,7 @@ class Graph(gtk.ScrolledWindow):
         if not position:
             position = [(vadj.upper / 2), (hadj.upper / 2)]
 
-        print(map(lambda x: int(x), position))
+        print([int(x) for x in position])
         hadj.set_value(position[0] - (hadj.page_size / 2))
         vadj.set_value(position[1] - (vadj.page_size / 2))
 
@@ -120,7 +120,7 @@ class Graph(gtk.ScrolledWindow):
         if not (event.state & gtk.gdk.CONTROL_MASK):
             return
 
-        center = map(lambda v: v / self.area.zoom, event.get_coords())
+        center = [v / self.area.zoom for v in event.get_coords()]
 
         if event.direction == gtk.gdk.SCROLL_UP:
             self.zoom_in(center)
@@ -144,7 +144,7 @@ class Graph(gtk.ScrolledWindow):
 
     def remove_vertex(self):
         to_be_removed = list(self.graph.selected_vertices())
-        map(lambda vertex: self.graph.remove_vertex(vertex), to_be_removed)
+        list(map(lambda vertex: self.graph.remove_vertex(vertex), to_be_removed))
         self.add_state()
 
         self.action = None
@@ -248,7 +248,7 @@ class Graph(gtk.ScrolledWindow):
         method = self.graph.select_vertex
         if (event.state & CONTROL_MASK):
             method = self.graph.toggle_vertex_selection
-        map(lambda vertex: method(vertex), vertices)
+        list(map(lambda vertex: method(vertex), vertices))
 
     def select_vertex(self, event):
         vertex = self.graph.find_by_position(self.last_position_clicked)
@@ -306,13 +306,13 @@ class Graph(gtk.ScrolledWindow):
     def algorithm_next(self, auto=False):
         if self.algorithm_runner:
             if auto and not self.algorithm_paused:
-                self.algorithm_runner.next()
+                next(self.algorithm_runner)
                 self.queue_draw()
                 if self.algorithm_playing and self.algorithm_runner.is_alive():
                     return True
             else:
                 if not self.algorithm_playing or not self.algorithm_runner.is_alive():
-                    self.algorithm_runner.next()
+                    next(self.algorithm_runner)
                     self.queue_draw()            
                 self.algorithm_playing = False
         return False
@@ -400,8 +400,8 @@ class Graph(gtk.ScrolledWindow):
         self.queue_draw()
 
     def mouse_press(self, widget, event):
-        print(event.get_coords())
-        self.last_position_clicked = map(lambda v: v / self.area.zoom, event.get_coords())
+        print((event.get_coords()))
+        self.last_position_clicked = [v / self.area.zoom for v in event.get_coords()]
 
         if event.button == 1:
             if self.action != None:
@@ -507,7 +507,7 @@ class Graph(gtk.ScrolledWindow):
         self.area.queue_draw()
 
     def mouse_motion(self, widget, event):
-        coords = map(lambda v: v / self.area.zoom, event.get_coords())
+        coords = [v / self.area.zoom for v in event.get_coords()]
 
         if self.box_selecting:
             x, y = self.box_selecting

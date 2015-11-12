@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os
-import ConfigParser
+import configparser
 from lib.system import  *
 from lib.logger import Logger
 
@@ -48,7 +48,7 @@ class Config(object):
 
     def load(self):
         """Reads configuration"""
-        self.config = ConfigParser.ConfigParser()
+        self.config = configparser.ConfigParser()
         try:
             if self.master_configfile:
                 self.logger.info("Reading master configfile %s" % self.master_configfile)

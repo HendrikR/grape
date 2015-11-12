@@ -13,7 +13,7 @@ class About(object):
 
         self.about_show = self.builder.get_object("about_show")
         path = os.path.join(current_path, "..", "..")
-        print path
+        print(path)
         path = os.path.join(path, "resources", "images", "logo.png")
         logo = gtk.gdk.pixbuf_new_from_file(path)
 

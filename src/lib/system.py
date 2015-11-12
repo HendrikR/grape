@@ -7,6 +7,7 @@ import time
 import random
 import tempfile
 import re
+import imp
 
 def get_user_name():
     """Returns current user name"""
@@ -95,10 +96,10 @@ def reload_algorithm(algorithm):
     """
     tmp_import = algorithm
     tmp_from = camelcase_to_underscore(tmp_import)
-    for mod in sys.modules.values():
+    for mod in list(sys.modules.values()):
         if mod and mod.__name__ == tmp_from:
-            print "reloading " + mod.__name__
-            mod = reload(mod)
+            print("reloading " + mod.__name__)
+            mod = imp.reload(mod)
 
 def underscore_to_classname(value):
     """Convert a undercore name to classname (CamelCase)"""

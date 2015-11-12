@@ -317,7 +317,7 @@ class Vertex(object):
 #        self.area.queue_draw()
     
     def title_changed(self, widget):
-        print type(self.vertex)
+        print(type(self.vertex))
         self.vertex.title = self.text_title.get_text()
         self.area.queue_draw()
         self.set_changed(True)

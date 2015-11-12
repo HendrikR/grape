@@ -226,19 +226,19 @@ class Screen(object):
         self.logger.info("Exporting as GraphML")
         tab, i = self.current_tab()
         if tab and self.notebook.get_n_pages() > 0:
-            print tab.graph.to_graphml()
+            print(tab.graph.to_graphml())
 
     def menu_file_export_enforce(self, widget):
         self.logger.info("Exporting as ENFORCE")
         tab, i = self.current_tab()
         if tab and self.notebook.get_n_pages() > 0:
-            print tab.graph.to_enforce()
+            print(tab.graph.to_enforce())
 
     def menu_file_export_dot(self, widget):
         self.logger.info("Exporting as DOT")
         tab, i = self.current_tab()
         if tab and self.notebook.get_n_pages() > 0:
-            print tab.graph.to_dot()
+            print(tab.graph.to_dot())
 
     def menu_file_revert(self, widget):
         self.logger.info("Reverting file")
@@ -349,7 +349,7 @@ class Screen(object):
         if tab.graph.selected_vertices() < 2:
             return False
        
-        mean = int(sum(map(lambda x: x.position[1], tab.graph.selected_vertices())) / len(tab.graph.selected_vertices()))
+        mean = int(sum([x.position[1] for x in tab.graph.selected_vertices()]) / len(tab.graph.selected_vertices()))
         for vertex in tab.graph.selected_vertices():
             vertex.position[1] = mean
 
@@ -362,7 +362,7 @@ class Screen(object):
         if tab.graph.selected_vertices() < 2:
             return False
 
-        mean = int(sum(map(lambda x: x.position[0], tab.graph.selected_vertices())) / len(tab.graph.selected_vertices()))
+        mean = int(sum([x.position[0] for x in tab.graph.selected_vertices()]) / len(tab.graph.selected_vertices()))
 
         for vertex in tab.graph.selected_vertices():
             vertex.position[0] = mean

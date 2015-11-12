@@ -80,14 +80,14 @@ class Algorithm(Thread):
 
     def __clean_checks(self):
         """ Make current action for all action stacks"""
-        for what, check in self.__checks.items():
+        for what, check in list(self.__checks.items()):
             if not what: continue
             if not check: what.check()
             else: what.uncheck()
 
     def __make_checks(self):
         """ Make current action for all action stacks"""
-        for what, check in self.__checks.items():
+        for what, check in list(self.__checks.items()):
             if not what: continue
             if check: what.check()
             else: what.uncheck()
@@ -102,7 +102,7 @@ class Algorithm(Thread):
     
     def uncheck_all(self):
         """Unchecks all the vertex and edges a edge"""
-        for what, boolean in self.__checks.items():
+        for what, boolean in list(self.__checks.items()):
             self.uncheck(what)
             if what: what.uncheck()
 
@@ -119,7 +119,7 @@ class Algorithm(Thread):
         """Writes action in the stack"""
         self.__checks[what] = False
 
-    def next(self):
+    def __next__(self):
         """Jump to the next state"""
         if not self.__redo():
             self.__signal()
