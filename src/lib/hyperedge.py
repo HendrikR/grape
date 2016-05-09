@@ -20,8 +20,8 @@ class Hyperedge(object):
             if not vertex.has_edge(self):
                 vertex.add_edge(self)
 
-    def __str__(self):
-        """Print a formated edge"""
+    def __str__(self): # todo
+        """Print a formated hyperedge"""
         value = self.title + " " + str(self.start)
         if self.directed:
             value += " -> "
@@ -45,6 +45,7 @@ class Hyperedge(object):
     def touches(self, vertex):
         for v in adj:
             if v == vertex: return True
+        return False
 
     def to_graphml(self): # TODO
         return ('    <edge id="'+ str(self.id) +'" source="'+ str(self.start.id) +'" target="'+ str(self.end.id) +'">\n'
