@@ -102,6 +102,16 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkImageMenuItem" id="menu_file_export_jsg">
+                        <property name="label">Export as JSG</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
+                        <signal name="activate" handler="menu_file_export_jsg"/>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkImageMenuItem" id="menu_file_revert">
                         <property name="label">gtk-revert-to-saved</property>
                         <property name="visible">True</property>
@@ -699,6 +709,20 @@
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-media-next</property>
                 <signal name="clicked" handler="menu_algorithms_next"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="toolbutton_layout">
+                <property name="visible">True</property>
+                <property name="sensitive">True</property>
+                <property name="label" translatable="yes">Next</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-media-play</property>
+                <signal name="clicked" handler="menu_algorithms_layout"/>
               </object>
               <packing>
                 <property name="expand">False</property>

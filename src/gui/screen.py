@@ -29,7 +29,7 @@ class Screen(object):
         self.algorithm = None
         self.create_algorithms_menu()
 
-        self.screen.connect('key_press_event', self.keyboard_press)
+        ##self.screen.connect('key_press_event', self.keyboard_press)
         self.screen.parent_screen = self
 
         self.notebook.set_scrollable(True)
@@ -240,6 +240,12 @@ class Screen(object):
         if tab and self.notebook.get_n_pages() > 0:
             print(tab.graph.to_dot())
 
+    def menu_file_export_jsg(self, widget):
+        self.logger.info("Exporting as JSG")
+        tab, i = self.current_tab()
+        if tab and self.notebook.get_n_pages() > 0:
+            print(tab.graph.to_jsg())
+
     def menu_file_revert(self, widget):
         self.logger.info("Reverting file")
         tab, page_number = self.current_tab()
@@ -442,7 +448,13 @@ class Screen(object):
         """Action of algorithm execution next"""
         tab, number = self.current_tab()
         self.logger.info("Next state algorithm")
-        tab.algorithm_next()
+        tab.algorithm_()
+
+    def menu_algorithms_layout(self, widget):
+        """Action of algorithm execution layout"""
+        tab, number = self.current_tab()
+        self.logger.info("Layout")
+        tab.algorithm_layout()
         
     def menu_help_about(self, widget):
         self.logger.info("About")

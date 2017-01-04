@@ -26,12 +26,12 @@ class Main(object):
         self.builder.set_translation_domain(self.domain)
         gtk.notebook_set_window_creation_hook(self.screen_create, None)
         self.screen_create()
-      
+
         gtk.main()
         gtk.gdk.threads_leave()
 
     def screen_create(self, source=None, page=None, x=None, y=None, user_data=None):
-        self.logger.info("Criating screen")
+        self.logger.info("Creating screen")
         screen = Screen(page != None)
         if x and y:
             screen.move_screen(x, y)

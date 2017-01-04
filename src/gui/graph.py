@@ -332,6 +332,10 @@ class Graph(gtk.ScrolledWindow):
             self.queue_draw()
             self.__block_event_box()
 
+    def algorithm_layout(self):
+        self.graph.layout_graph(50)
+        self.queue_draw()
+
     def add_state(self):
         state = pickle.dumps(self.graph)
         

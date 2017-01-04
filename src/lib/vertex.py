@@ -113,3 +113,23 @@ class Vertex(object):
         return ('  '+ str(self.id) +' ['
                 'label="' + self.title +'", '
                 'color="' + self.fill_color +'"]\n')
+
+    def to_jsg(self):
+        # node type and id
+        ret = '["T",' + str(self.id) + ','
+        # todo: props
+        ret += '[' 
+        for attr in self.__dict__:
+            if attr == "title":
+                ret += '["TITLE","' + getattr(self, "title") + '"],'
+            if attr.startswith("user_"):
+                key = attr[5:]
+                val = getattr(self, attr)
+                ret += '["' + key + '",' + val + '],'
+        ret += '],'
+        # edges
+        ret += '[["E"'
+        for e in self.edge_list:
+            ret += ',' + str(e.end.id)
+        ret += ']]\n'
+        return ret

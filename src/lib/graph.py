@@ -8,7 +8,9 @@ from lib.vertex import Vertex
 from lib.edge import Edge
 from lib.hyperedge import Hyperedge
 
-# import networkx as nx
+import re
+import random
+import math
 
 class Graph(object):
     def __init__(self, title=""):
@@ -132,14 +134,75 @@ class Graph(object):
     # TODO - Header
 
     def open(self, name):
+        graph = None
+        if   name.lower().endswith('.cgf'):
+            graph = self.open_native(name)
+        elif name.lower().endswith('.jsg'):
+            graph = self.open_jsg(name)
+        else:
+            print("nooope, can't open that.")
+        if graph != None:
+            graph.path = name
+            self.init_layout()
+        return graph
+
+        
+    def open_native(self, name):
         f = open(name, 'rb')
         encoded = f.read()
         compressed = base64.b64decode(encoded)
         data = gzip.zlib.decompress(compressed)
         graph = pickle.loads(data)
         f.close()
-        graph.path = name
         return graph
+
+
+    def typecolor(self, nodetype):
+        val = hash(nodetype)
+        r = "%02x" % ((val >>  8) & 0xFF)
+        g = "%02x" % ((val >> 16) & 0xFF)
+        b = "%02x" % ((val >> 24) & 0xFF)
+        return "#" + r + g + b
+
+    def open_jsg(self, name):
+        print("opening " + name)
+        self.title="jsg"
+        f = open(name, 'r')
+        fline = 0
+        all_edges = {}
+        for line in f.readlines():
+            fline += 1
+            if (fline == 1): # ignore that first line with the typing for now
+                continue
+            m = re.match('^\["([^"]*)",([0-9]*),\[(|\[.*\])\],\[(|\[.*\])\]\]$', line.rstrip('\n'))
+            nodetype  = m.group(1)
+            nodeid    = int(m.group(2))
+            nodeprops = m.group(3)
+            nodeedges = m.group(4)
+            nodeprops = re.findall('\["([^"]*)",([^[\]]*)\]', nodeprops)
+            
+            vertex = Vertex(nodeid, [0,0])
+            self.vertices.append(vertex)
+            setattr(vertex, "user_nodetype", nodetype)
+            for (key,val) in nodeprops:
+                setattr(vertex, "user_" + key.lower(), val)
+            vertex.border_color = self.typecolor(nodetype)
+            vertex.title = str(nodeid) +":"+ nodetype
+
+            all_edges[nodeid] = re.findall('\["([^\"]*)",([0-9, ]*)\]', nodeedges)
+        # the vertices have to be sorted by id to find them
+        self.vertices.sort(key=lambda v : v.id)
+        self.vertex_id = self.vertices[-1].id+1
+
+        for src_id,edgetypes in all_edges.iteritems():
+            for (etype,edges) in edgetypes:
+                for tgt_id in edges.split(','):
+                    src_v = self.find(int(src_id))
+                    tgt_v = self.find(int(tgt_id))
+                    self.add_edge(src_v, tgt_v)
+        
+        self.init_layout()
+        return self
 
     def save(self, name):
         if not name.endswith('.cgf'):
@@ -152,6 +215,77 @@ class Graph(object):
         encoded = base64.b64encode(compress)
         f.write(encoded)
         f.close()
+
+    def layout_graph(self, steps):
+        for i in xrange(0, steps):
+            self.calc_layout()
+        #self.scale_to_region()
+
+    def init_layout(self):
+        self.layout_step = 0
+        self.layout_X0    = 20
+        self.layout_Y0    = 20
+        self.layout_WIDTH = 800
+        self.layout_HEIGHT= 400
+        for v in self.vertices:
+            v.position = [random.randrange(20,self.layout_WIDTH -20),
+                          random.randrange(20,self.layout_HEIGHT-20)]
+            v.velocity = (0,0)
+
+    def calc_layout(self):
+        # init constants
+        k = min(self.layout_WIDTH, self.layout_HEIGHT) / 3 * 2
+        C = math.log(self.layout_step + 2) * 100
+
+        # calculate repelling force between nodes:
+        for v1 in self.vertices:
+            v1.velocity = (0,0)
+            for v2 in self.vertices:
+                dx = v1.position[0] - v2.position[0]
+                dy = v1.position[1] - v2.position[1]
+                #dist = math.pow(dx*dx + dy*dy, 0.5) # Euclidian distance
+                dist = abs(dx)+abs(dy) # Manhattan distance
+                if (dist < 0.0001):
+                    continue
+                mul = (k*k) / (dist*dist*C)
+                v1.position[0] += dx * mul
+                v1.position[1] += dy * mul
+                
+        # calculate attracting forces along edges:
+        for e in self.edges:
+            psrc = e.start.position
+            ptgt = e.end.position
+            dx = psrc[0] - ptgt[0]
+            dy = psrc[1] - ptgt[1]
+            #dist = math.pow(dx*dx + dy*dy, 0.5) # Euclidian distance
+            dist = abs(dx)+abs(dy) # Manhattan distance
+            if (dist < 0.0001):
+                continue
+            mul = (dist*dist) / (k*k*C)
+            v1.position[0] += dx * mul
+            v1.position[1] += dy * mul
+                
+    def scale_to_region(self):
+        minx = self.layout_X0 + self.layout_WIDTH
+        miny = self.layout_Y0 + self.layout_HEIGHT
+        maxx = self.layout_X0
+        maxy = self.layout_Y0
+        for v in self.vertices:
+            nodex = v.position[0]
+            nodey = v.position[1]
+            minx = nodex if nodex < minx else minx
+            miny = nodey if nodey < miny else miny
+            maxx = nodex if nodex > maxx else maxx
+            maxy = nodey if nodey > maxy else maxy
+        print("scaling from (" + str(minx) +","+str(miny)+") , ("+str(maxx)+","+str(maxy)+")")
+        xscale = self.layout_WIDTH  / (maxx - minx)
+        yscale = self.layout_HEIGHT / (maxy - miny)
+        xshift = self.layout_X0
+        yshift = self.layout_Y0
+        print("scaling by *(" + str(xscale) +","+str(yscale)+") +("+str(xshift)+","+str(yshift)+")")
+        for v in self.vertices:
+            v.position[0] = xshift + xscale*(nodex-minx)
+            v.position[1] = yshift + yscale*(nodey-miny)
 
     def add_vertex(self, position):
         vertex = Vertex(self.vertex_id, position)
@@ -310,3 +444,11 @@ class Graph(object):
         str += '}\n'
         return str
         
+    def to_jsg(self):
+        # TODO: Property types?
+        str = '# {"name":"GRAPE_EXPORT","indexed":1,"undirected":0,"node_types":["T"],"edge_types":["E"],"property_types":[],"gravity_version":46}\n'
+        for v in self.vertices:
+            str += v.to_jsg()
+        # Edges are handeled by the nodes
+        return str
+    
