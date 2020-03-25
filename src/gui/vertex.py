@@ -1,4 +1,4 @@
-import gtk
+from gi.repository import Gtk, Gdk
 import os
 import sys
 import locale
@@ -16,7 +16,7 @@ class Vertex(object):
 
         self.vertex_list = vertex.vertex_list
         self.edge_list = vertex.edge_list
-        
+
         self.area = graph_show.area
         self.set_changed = graph_show.set_changed
         self.graph = graph_show.graph
@@ -25,7 +25,7 @@ class Vertex(object):
 
         self.vertex.select()
 
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
 
         self.menu_edges = None
         self.menu_properties = None
@@ -45,11 +45,11 @@ class Vertex(object):
         self.treeview_edges = self.builder.get_object("treeview_edges")
         self.treeview_properties = self.builder.get_object("treeview_properties")
 
-        self.treeview_edges.get_selection().set_mode(gtk.SELECTION_MULTIPLE)                
-        self.treeview_properties.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        self.treeview_edges.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.treeview_properties.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
 
-        self.liststore_edges = gtk.ListStore(str, str, str)
-        self.liststore_properties = gtk.ListStore(str, str)
+        self.liststore_edges = Gtk.ListStore(str, str, str)
+        self.liststore_properties = Gtk.ListStore(str, str)
 
         self.treeview_edges.set_model(self.liststore_edges)
         self.treeview_properties.set_model(self.liststore_properties)
@@ -60,11 +60,11 @@ class Vertex(object):
         self.screen.show_all()
 
     def treeview_create(self):
-        renderer1 = gtk.CellRendererText()
+        renderer1 = Gtk.CellRendererText()
         renderer1.connect('edited', self.edit_properties, 0)
         renderer1.set_property('editable', True)
 
-        renderer2 = gtk.CellRendererText()
+        renderer2 = Gtk.CellRendererText()
         renderer2.connect('edited', self.edit_properties, 1)
         renderer2.set_property('editable', True)
 
@@ -84,9 +84,9 @@ class Vertex(object):
         self.text_title.set_text(self.vertex.title)
         self.spin_posx.set_value(self.vertex.position[0])
         self.spin_posy.set_value(self.vertex.position[1])
-        
-        self.color_vertex.set_color(gtk.gdk.Color(self.vertex.fill_color))
-        self.color_border.set_color(gtk.gdk.Color(self.vertex.border_color))
+
+        self.color_vertex.set_color(Gdk.color_parse(self.vertex.fill_color))
+        self.color_border.set_color(Gdk.color_parse(self.vertex.border_color))
         
         self.adjustment_radius.value = self.vertex.size
         self.adjustment_border.value = self.vertex.border_size
@@ -120,11 +120,10 @@ class Vertex(object):
             add = self.add_properties
             remove = self.remove_properties
 
-        from gtk.gdk import CONTROL_MASK
-        if key == gtk.keysyms.Delete:
+        if key == Gdk.KEY_Delete:
             remove()
-        if (event.state & CONTROL_MASK):
-            if key == gtk.keysyms.N or key == gtk.keysyms.n:
+        if (event.state & Gdk.ModifierType.CONTROL_MASK):
+            if key == Gdk.KEY_N or key == Gdk.KEY_n:
                 add()
 
     def treeview_edges_cursor_changed(self, widget):
@@ -164,10 +163,10 @@ class Vertex(object):
             action()
 
         if not self.menu_edges:
-            self.menu_edges = gtk.Menu()
-            self.menu_add_edge = gtk.MenuItem(_("_Add edge"))
-            self.menu_remove_edge = gtk.MenuItem(_("_Remove edge"))
-            self.menu_edit_edge = gtk.MenuItem(_("_Edit edge settings"))
+            self.menu_edges = Gtk.Menu()
+            self.menu_add_edge = Gtk.MenuItem(_("_Add edge"))
+            self.menu_remove_edge = Gtk.MenuItem(_("_Remove edge"))
+            self.menu_edit_edge = Gtk.MenuItem(_("_Edit edge settings"))
 
             self.menu_add_edge.connect("activate", execute_action, self.add_edge)
             self.menu_remove_edge.connect("activate", execute_action, self.remove_edge)
@@ -202,9 +201,9 @@ class Vertex(object):
             action()
 
         if not self.menu_properties:
-            self.menu_properties = gtk.Menu()
-            self.menu_add_properties = gtk.MenuItem(_("_Add properties"))
-            self.menu_remove_properties = gtk.MenuItem(_("_Remove properties"))
+            self.menu_properties = Gtk.Menu()
+            self.menu_add_properties = Gtk.MenuItem(_("_Add properties"))
+            self.menu_remove_properties = Gtk.MenuItem(_("_Remove properties"))
 
             self.menu_add_properties.connect("activate", execute_action, self.add_properties)
             self.menu_remove_properties.connect("activate", execute_action, self.remove_properties)
@@ -256,7 +255,7 @@ class Vertex(object):
         store, rows = selection.get_selected_rows()
         
         #Scamp way to delete all selecteds rows =D
-        rows_reference = [gtk.TreeRowReference(store, row) for row in rows]
+        rows_reference = [Gtk.TreeRowReference(store, row) for row in rows]
 
         for row in rows_reference:
             row_iter = store.get_iter(row.get_path())
@@ -289,8 +288,8 @@ class Vertex(object):
         return
 
     def add_properties(self):
-	t_identifier = "identifier"
-	t_value = "value"
+        t_identifier = "identifier"
+        t_value = "value"
         self.liststore_properties.append([t_identifier, t_value])
         setattr(self.vertex, "user_" + t_identifier, t_value)
 
@@ -299,7 +298,7 @@ class Vertex(object):
         store, rows = selection.get_selected_rows()
         
         #Scamp way to delete all selecteds rows =D
-        rows_reference = [gtk.TreeRowReference(store, row) for row in rows]
+        rows_reference = [Gtk.TreeRowReference(store, row) for row in rows]
 
         for row in rows_reference:
             row_iter = store.get_iter(row.get_path())
@@ -333,12 +332,13 @@ class Vertex(object):
         self.set_changed(True)
     
     def color_vertex_changed(self, widget):
-        self.vertex.fill_color = str(widget.get_color())
+        self.vertex.fill_color = widget.get_color().to_string()
         self.area.queue_draw()
         self.set_changed(True)
         
     def color_border_changed(self, widget):
-        self.vertex.border_color = str(widget.get_color())
+        self.vertex.border_color = widget.get_color().to_string()
+        self.vertex.border_color = widget.get_color().to_string()
         self.area.queue_draw()
         self.set_changed(True)
     
@@ -359,4 +359,3 @@ class Vertex(object):
 
         self.area.queue_draw()
         self.screen.destroy()
-

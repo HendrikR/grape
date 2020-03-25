@@ -1,11 +1,11 @@
 import os
-import gtk
+from gi.repository import Gtk, Gdk
 
 
 class FileChooser(object):
 
     def __init__(self, type):
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         current_path = os.path.dirname(__file__)
         path = os.path.join(current_path, "file_chooser.ui")
         self.builder.add_from_file(path)
@@ -28,7 +28,7 @@ class FileChooser(object):
         confirm = self.builder.get_object("button_confirm")
         confirm.set_label(label)
         confirm.connect('clicked', self.confirm)
-        self.file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_SAVE)
+        self.file_chooser.set_action(Gtk.FileChooserAction.SAVE)
         self.file_chooser.set_title(title)
 
     def confirm(self, widget):

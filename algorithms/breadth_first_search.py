@@ -39,7 +39,7 @@ class BreadthFirstSearch(Algorithm):
         
         self.show()
         self.uncheck(rtn)
-        print rtn
+        print(rtn)
 
 
 

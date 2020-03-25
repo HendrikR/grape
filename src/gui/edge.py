@@ -1,4 +1,4 @@
-import gtk
+from gi.repository import Gtk, Gdk
 import os
 import sys
 import locale
@@ -27,22 +27,22 @@ class Edge(object):
         self.adjustment_width = self.builder.get_object("adjustment_width")
 
         self.treeview_properties = self.builder.get_object("treeview_properties")
-        self.treeview_properties.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        self.treeview_properties.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
 
         self.treeview_create()
         #self.init_general_fields()
         self.builder.connect_signals(self)
         self.screen.show_all()
 
-        self.liststore_properties = gtk.ListStore(str, str)
+        self.liststore_properties = Gtk.ListStore(str, str)
         self.treeview_properties.set_model(self.liststore_properties)
 		
     def treeview_create(self):
-        renderer1 = gtk.CellRendererText()
+        renderer1 = Gtk.CellRendererText()
         renderer1.connect('edited', self.edit_properties, 0)
         renderer1.set_property('editable', True)
 
-        renderer2 = gtk.CellRendererText()
+        renderer2 = Gtk.CellRendererText()
         renderer2.connect('edited', self.edit_properties, 1)
         renderer2.set_property('editable', True)
 
@@ -58,7 +58,7 @@ class Edge(object):
     def init_general_fields(self):
         self.label_id.set_label(str(self.edge.id))
         self.text_title.set_text(self.edge.title)
-        self.color_edge.set_color(gtk.gdk.Color(self.edge.color))
+        self.color_edge.set_color(Gdk.color_parse(self.edge.color))
         self.adjustment_width.value = self.edge.width
 
     def init_properties_fields(self):
@@ -72,13 +72,11 @@ class Edge(object):
     def keyboard_press(self, widget, event):
         key = event.keyval
 
-        if key == gtk.keysyms.Delete:
+        if key == Gdk.KEY_Delete:
             self.remove_properties()
             
-        from gtk.gdk import CONTROL_MASK
-
-        if (event.state & CONTROL_MASK):
-            if key == gtk.keysyms.N or key == gtk.keysyms.n:
+        if (event.state & Gdk.ModifierType.CONTROL_MASK):
+            if key == Gdk.KEY_N or key == Gdk_KEY_n:
                 self.add_properties()
 
     def mouse_press(self, widget, event):
@@ -102,9 +100,9 @@ class Edge(object):
             action()
 
         if not self.menu:
-            self.menu = gtk.Menu()
-            self.menu_add_properties = gtk.MenuItem(_("_Add properties"))
-            self.menu_remove_properties = gtk.MenuItem(_("_Remove properties"))
+            self.menu = Gtk.Menu()
+            self.menu_add_properties = Gtk.MenuItem(_("_Add properties"))
+            self.menu_remove_properties = Gtk.MenuItem(_("_Remove properties"))
 
             self.menu_add_properties.connect("activate", execute_action, self.add_properties)
             self.menu_remove_properties.connect("activate", execute_action, self.remove_properties)
@@ -135,7 +133,7 @@ class Edge(object):
         store, rows = selection.get_selected_rows()
         
         #Scamp way to delete all selecteds rows =D
-        rows_reference = [gtk.TreeRowReference(store, row) for row in rows]
+        rows_reference = [Gtk.TreeRowReference(store, row) for row in rows]
 
         for row in rows_reference:
             row_iter = store.get_iter(row.get_path())
@@ -176,7 +174,7 @@ class Edge(object):
         self.set_changed(True)
     
     def color_edge_changed(self, widget):
-        self.edge.color = str(widget.get_color())
+        self.edge.color = widget.get_color().to_string()
         self.area.queue_draw()
         self.set_changed(True)
         

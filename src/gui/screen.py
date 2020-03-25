@@ -6,7 +6,7 @@ from gui.preferences import Preferences
 from lib.logger import Logger
 from lib.system import *
 
-import gtk
+from gi.repository import Gtk, Gdk
 import os
 import sys
 
@@ -18,7 +18,7 @@ class Screen(object):
 
         self.logger = Logger()
 
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         self.builder.add_from_file(path)
         self.builder.connect_signals(self)
 
@@ -33,7 +33,7 @@ class Screen(object):
         self.screen.parent_screen = self
 
         self.notebook.set_scrollable(True)
-        self.notebook.set_group_id(0)
+        self.notebook.set_group_name("graph")
 
         tab = None
         if not hook:
@@ -54,7 +54,7 @@ class Screen(object):
         group = None
         for clss in classes_algorithms:
             name = camelcase_to_text(clss.__name__)
-            item = gtk.RadioMenuItem(group, name)
+            item = Gtk.RadioMenuItem(group=group, label=name)
             item.connect("toggled", self.menu_algorithms, clss)
             menu_algorithms.append(item)
             group = item
@@ -72,24 +72,26 @@ class Screen(object):
             message_prefix = _("Your file")
             message_suffix = _("has been changed.\nDo you save its changes?")
             message = message_prefix + " \"" + tab.graph.title + "\" " + message_suffix
-            dialog = gtk.MessageDialog(parent=self.screen, flags=gtk.DIALOG_DESTROY_WITH_PARENT | gtk.DIALOG_MODAL, type=gtk.MESSAGE_WARNING, message_format=message)
+            dialog = Gtk.MessageDialog(parent=self.screen,
+                                       flags=Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
+                                       type=Gtk.MessageType.WARNING, message_format=message)
             dialog.set_title(title)
 
-            save = gtk.STOCK_SAVE_AS
+            save = Gtk.STOCK_SAVE_AS
             if tab.graph.path:
-                save = gtk.STOCK_SAVE
+                save = Gtk.STOCK_SAVE
 
-            dialog.add_buttons(gtk.STOCK_NO, gtk.RESPONSE_NO)
-            dialog.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            dialog.add_buttons(save, gtk.RESPONSE_YES)
+            dialog.add_buttons(Gtk.STOCK_NO, Gtk.ResponseType.NO)
+            dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+            dialog.add_buttons(save, Gtk.ResponseType.YES)
 
             dialog.show_all()
             response = dialog.run()
             dialog.destroy()
 
-            if response == gtk.RESPONSE_CANCEL:
+            if response == Gtk.ResponseType.CANCEL:
                 return False
-            elif response == gtk.RESPONSE_YES:
+            elif response == Gtk.ResponseType.YES:
                 self.menu_file_save(None)
 
                 if tab.changed:
@@ -121,21 +123,22 @@ class Screen(object):
             menu_file_revert.set_sensitive(False)
 
     def add_notebook_tab(self, tab):
-        hbox = gtk.HBox(False, 0)
-        close_image = gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
+        hbox = Gtk.HBox(False, 0)
+        icon_theme = Gtk.IconTheme.get_default()
+        close_image = Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, 1)
 
-        btn = gtk.Button()
-        btn.set_relief(gtk.RELIEF_NONE)
+        btn = Gtk.Button()
+        btn.set_relief(Gtk.ReliefStyle.NONE)
         btn.set_focus_on_click(False)
         btn.add(close_image)
 
-        style = gtk.RcStyle()
-        style.xthickness = 0
-        style.ythickness = 0
+        style = Gtk.RcStyle()
+        #style.xthickness = 0
+        #style.ythickness = 0
         btn.modify_style(style)
 
-        hbox.pack_start(gtk.Label(tab.graph.title))
-        hbox.pack_start(btn, False, False)
+        hbox.pack_start(Gtk.Label(tab.graph.title), False, False, 0)
+        hbox.pack_start(btn, False, False, 0)
 
         self.notebook.append_page(tab, hbox)
         tab.box = hbox
@@ -256,19 +259,22 @@ class Screen(object):
             message_prefix = _("Revert unsaved changes to document")
             message_suffix = _("?")
             message = message_prefix + " \"" + tab.graph.title + "\" " + message_suffix
-            dialog = gtk.MessageDialog(parent=self.screen, flags=gtk.DIALOG_DESTROY_WITH_PARENT | gtk.DIALOG_MODAL, type=gtk.MESSAGE_QUESTION, message_format=message)
+            dialog = Gtk.MessageDialog(parent=self.screen,
+                                       flags=Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
+                                       type=Gtk.MessageType.QUESTION,
+                                       message_format=message)
             dialog.set_title(title)
 
-            dialog.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            dialog.add_buttons(gtk.STOCK_REVERT_TO_SAVED, gtk.RESPONSE_YES)
+            dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+            dialog.add_buttons(Gtk.STOCK_REVERT_TO_SAVED, Gtk.ResponseType.YES)
 
             dialog.show_all()
             response = dialog.run()
             dialog.destroy()
 
-            if response == gtk.RESPONSE_CANCEL:
+            if response == Gtk.ResponseType.CANCEL:
                 return False
-            elif response == gtk.RESPONSE_YES:
+            elif response == Gtk.ResponseType.YES:
                 if tab.graph.path:
                     tab.graph = tab.graph.open(tab.graph.path)
                     tab.area.graph = tab.graph
@@ -287,7 +293,7 @@ class Screen(object):
 
     def menu_file_quit(self, widget):
         self.logger.info("Menu quit")
-        self.screen.event(gtk.gdk.Event(gtk.gdk.DELETE))
+        self.screen.event(Gdk.Event(Gdk.EventType.DELETE))
         self.main_quit(widget)
 
     def menu_edit_undo(self, widget):
@@ -467,24 +473,22 @@ class Screen(object):
         key = event.keyval
         direction = None
 
-        from gtk.gdk import CONTROL_MASK
-
-        if key == gtk.keysyms.Right:
+        if key == Gdk.KEY_Right:
             direction = "right"
-        elif key == gtk.keysyms.Left:
+        elif key == Gdk.KEY_Left:
             direction = "left"
-        elif key == gtk.keysyms.Up:
+        elif key == Gdk.KEY_Up:
             direction = "up"
-        elif key == gtk.keysyms.Down:
+        elif key == Gdk.KEY_Down:
             direction = "down"
-        elif key == gtk.keysyms.Escape:
+        elif key == Gdk.KEY_Escape:
             if tab.action:
                 tab.action = None
             else:
                 tab.graph.clear_selection()
                 self.logger.info("Clean UP selection")
-        elif (event.state & CONTROL_MASK):
-            if key == gtk.keysyms.A or key == gtk.keysyms.a:
+        elif (event.state & Gdk.ModifierType.CONTROL_MASK):
+            if key == Gdk.KEY_A or key == Gdk.KEY_a:
                 self.logger.info("Selection all")
                 tab.graph.select_all()
 

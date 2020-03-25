@@ -1,11 +1,11 @@
-import gtk.gdk
+from gi.repository import Gtk, Gdk
 import os
 
 
 class About(object):
 
     def __init__(self):
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         current_path = os.path.dirname(__file__)
         path = os.path.join(current_path, "about.ui")
         self.builder.add_from_file(path)
@@ -15,7 +15,7 @@ class About(object):
         path = os.path.join(current_path, "..", "..")
         print(path)
         path = os.path.join(path, "resources", "images", "logo.png")
-        logo = gtk.gdk.pixbuf_new_from_file(path)
+        logo = Gdk.pixbuf_new_from_file(path)
 
         self.about_show.set_logo(logo)
         self.about_show.show_all()

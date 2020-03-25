@@ -1,8 +1,7 @@
-import gtk
+from gi.repository import Gtk, Gdk
 import math
 import pickle
 import gobject 
-from gtk import DrawingArea, EventBox, ScrolledWindow
 
 from lib.graph import Graph as GraphController
 from lib.mathemathical import *
@@ -10,21 +9,21 @@ from gui.area import GraphArea
 from gui.vertex import Vertex
 from gui.edge import Edge
 
-class Graph(gtk.ScrolledWindow):
+class Graph(Gtk.ScrolledWindow):
     def __init__(self, builder, changed_method):
-        gtk.ScrolledWindow.__init__(self)
+        Gtk.ScrolledWindow.__init__(self)
 
-        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
         self.builder = builder
-        self.event_box = EventBox()
+        self.event_box = Gtk.EventBox()
 
-        self.event_box.add_events(gtk.gdk.BUTTON_PRESS_MASK)
-        self.event_box.add_events(gtk.gdk.BUTTON_RELEASE_MASK)
-        self.event_box.add_events(gtk.gdk.MOTION_NOTIFY)
-        self.event_box.add_events(gtk.gdk.BUTTON1_MOTION_MASK)
-        self.event_box.add_events(gtk.gdk.KEY_PRESS_MASK)
-        self.event_box.set_events(gtk.gdk.POINTER_MOTION_MASK | gtk.gdk.POINTER_MOTION_HINT_MASK)
+        self.event_box.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.event_box.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
+        self.event_box.add_events(Gdk.EventType.MOTION_NOTIFY)
+        self.event_box.add_events(Gdk.EventMask.BUTTON1_MOTION_MASK)
+        self.event_box.add_events(Gdk.EventMask.KEY_PRESS_MASK)
+        self.event_box.set_events(Gdk.EventMask.POINTER_MOTION_MASK | Gdk.EventMask.POINTER_MOTION_HINT_MASK)
 
         self.event_box.connect('motion-notify-event', self.mouse_motion)
         self.event_box.connect('button-press-event', self.mouse_press)
@@ -68,11 +67,11 @@ class Graph(gtk.ScrolledWindow):
         hadj = self.get_hadjustment()
 
         if not position:
-            position = [(vadj.upper / 2), (hadj.upper / 2)]
+            position = [(vadj.get_upper() / 2), (hadj.get_upper() / 2)]
 
         print([int(x) for x in position])
-        hadj.set_value(position[0] - (hadj.page_size / 2))
-        vadj.set_value(position[1] - (vadj.page_size / 2))
+        hadj.set_value(position[0] - (hadj.get_page_size() / 2))
+        vadj.set_value(position[1] - (vadj.get_page_size() / 2))
 
     def zoom_in(self, center=None):
         if self.area.zoom < 1.7:
@@ -117,14 +116,14 @@ class Graph(gtk.ScrolledWindow):
         vadj = self.get_vadjustment()
         hadj = self.get_hadjustment()
 
-        if not (event.state & gtk.gdk.CONTROL_MASK):
+        if not (event.state & Gdk.ModifierType.CONTROL_MASK):
             return
 
         center = [v / self.area.zoom for v in event.get_coords()]
 
-        if event.direction == gtk.gdk.SCROLL_UP:
+        if event.direction == Gdk.ScrollDirection.UP:
             self.zoom_in(center)
-        elif event.direction == gtk.gdk.SCROLL_DOWN:
+        elif event.direction == Gdk.ScrollDirection.DOWN:
             self.zoom_out(center)
 
         width, height = self.area.get_size_request()
@@ -242,23 +241,21 @@ class Graph(gtk.ScrolledWindow):
         x, y, w, h = area
         vertices = self.graph.find_in_area(x, y, w, h)
 
-        from gtk.gdk import CONTROL_MASK, SHIFT_MASK
-        if not (event.state & CONTROL_MASK or event.state & SHIFT_MASK):
+        if not (event.state & Gdk.ModifierType.CONTROL_MASK or event.state & Gdk.ModifierType.SHIFT_MASK):
             self.graph.deselect_all()
         method = self.graph.select_vertex
-        if (event.state & CONTROL_MASK):
+        if (event.state & Gdk.ModifierType.CONTROL_MASK):
             method = self.graph.toggle_vertex_selection
         list(map(lambda vertex: method(vertex), vertices))
 
     def select_vertex(self, event):
         vertex = self.graph.find_by_position(self.last_position_clicked)
 
-        from gtk.gdk import CONTROL_MASK, SHIFT_MASK
-        if not (event.state & CONTROL_MASK or event.state & SHIFT_MASK) and (len(self.graph.selected_vertices()) > 0):
+        if not (event.state & Gdk.ModifierType.CONTROL_MASK or event.state & Gdk.ModifierType.SHIFT_MASK) and (len(self.graph.selected_vertices()) > 0):
             if not vertex or not vertex.selected:
                 self.graph.deselect_all()
         if vertex:
-            if vertex.selected and (event.state & CONTROL_MASK or event.state & SHIFT_MASK):
+            if vertex.selected and (event.state & Gdk.ModifierType.CONTROL_MASK or event.state & Gdk.ModifierType.SHIFT_MASK):
                 self.graph.deselect_vertex(vertex)
             else:
                 self.graph.select_vertex(vertex)
@@ -411,7 +408,7 @@ class Graph(gtk.ScrolledWindow):
                 self.set_changed(True)
             if self.action == None:
                 self.select_vertex(event)
-                if event.type == gtk.gdk._2BUTTON_PRESS:
+                if event.get_click_count()[1] == 2:
                     self.edit_vertex()
             elif self.action == "add_vertex":
                 self.add_vertex()
@@ -452,13 +449,13 @@ class Graph(gtk.ScrolledWindow):
             action()
 
         if not self.menu:
-            self.menu = gtk.Menu()
-            self.menu_add_edge = gtk.MenuItem(_("_Add edge"))
-            self.menu_remove_edge = gtk.MenuItem(_("_Remove edge"))
-            self.menu_add_vertex = gtk.MenuItem(_("_Add vertex"))
-            self.menu_remove_vertex = gtk.MenuItem(_("_Remove vertex"))
-            self.menu_edit_vertex = gtk.MenuItem(_("_Edit vertex settings"))
-            self.menu_edit_edge = gtk.MenuItem(_("_Edit edge settings"))
+            self.menu = Gtk.Menu()
+            self.menu_add_edge = Gtk.MenuItem(_("_Add edge"))
+            self.menu_remove_edge = Gtk.MenuItem(_("_Remove edge"))
+            self.menu_add_vertex = Gtk.MenuItem(_("_Add vertex"))
+            self.menu_remove_vertex = Gtk.MenuItem(_("_Remove vertex"))
+            self.menu_edit_vertex = Gtk.MenuItem(_("_Edit vertex settings"))
+            self.menu_edit_edge = Gtk.MenuItem(_("_Edit edge settings"))
 
             self.menu_add_edge.connect("activate", execute_action, self.add_edge)
             self.menu_remove_edge.connect("activate", execute_action, self.remove_edge)
@@ -469,10 +466,10 @@ class Graph(gtk.ScrolledWindow):
 
             self.menu.append(self.menu_add_vertex)
             self.menu.append(self.menu_remove_vertex)
-            self.menu.append(gtk.SeparatorMenuItem())
+            self.menu.append(Gtk.SeparatorMenuItem())
             self.menu.append(self.menu_add_edge)
             self.menu.append(self.menu_remove_edge)
-            self.menu.append(gtk.SeparatorMenuItem())
+            self.menu.append(Gtk.SeparatorMenuItem())
             self.menu.append(self.menu_edit_vertex)
             self.menu.append(self.menu_edit_edge)
 
@@ -494,7 +491,7 @@ class Graph(gtk.ScrolledWindow):
             self.menu_edit_edge.set_sensitive(False)
 
         self.menu.show_all()
-        self.menu.popup(None, None, None, event.button, event.time)
+        self.menu.popup(None, None, None, event.button, event.time, 0)
 
     def mouse_release(self, widget, event):
         selected_vertices = list(self.graph.selected_vertices())

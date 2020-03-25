@@ -1,5 +1,5 @@
 from gui.screen import Screen
-import gtk
+from gi.repository import Gtk, Gdk
 import os
 import sys
 import locale
@@ -17,18 +17,18 @@ class Main(object):
 
 
         # Refresh interface list
-        gtk.gdk.threads_init()
-        gtk.gdk.threads_enter()
+        Gdk.threads_init()
+        Gdk.threads_enter()
 
         self.screens = []
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         self.domain = self.translate()
         self.builder.set_translation_domain(self.domain)
-        gtk.notebook_set_window_creation_hook(self.screen_create, None)
+        ##TODOGtk.notebook_set_window_creation_hook(self.screen_create, None)
         self.screen_create()
-
-        gtk.main()
-        gtk.gdk.threads_leave()
+      
+        Gtk.main()
+        Gdk.threads_leave()
 
     def screen_create(self, source=None, page=None, x=None, y=None, user_data=None):
         self.logger.info("Creating screen")
@@ -56,7 +56,7 @@ class Main(object):
         self.screens.remove(widget)
 
         if len(self.screens) == 0:
-            gtk.main_quit()
+            Gtk.main_quit()
 
         return False
 

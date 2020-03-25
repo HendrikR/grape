@@ -85,7 +85,7 @@ def get_algorithms():
         file_name, file_ext = file.split('.')
         tmp_from = file_name
         tmp_import = underscore_to_classname(file_name)
-        module = __import__(tmp_from, globals(), locals(), [tmp_import], -1)
+        module = __import__(tmp_from, globals(), locals(), [tmp_import], 0)
         algorithms.append(getattr(module, tmp_import))
     
     return algorithms
@@ -108,7 +108,7 @@ def underscore_to_classname(value):
             yield str.capitalize
 
     c = camelcase()
-    return "".join(c.next()(x) if x else '_' for x in value.split("_"))
+    return "".join(c.__next__()(x) if x else '_' for x in value.split("_"))
 
 def underscore_to_camelcase(value):
     """Convert a undercore name to CamelCase"""
@@ -118,7 +118,7 @@ def underscore_to_camelcase(value):
             yield str.capitalize
 
     c = camelcase()
-    return "".join(c.next()(x) if x else '_' for x in value.split("_"))
+    return "".join(c.__next__()(x) if x else '_' for x in value.split("_"))
 
 def camelcase_to_underscore(value):
     """Convert a CamelCase to underscore"""

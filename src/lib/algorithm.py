@@ -6,12 +6,12 @@ from sys import settrace
 from lib.vertex import Vertex
 from lib.edge import Edge
 
-import gtk
+from gi.repository import Gtk
 
 class Algorithm(Thread):
     def __init__(self, graph_ui):
         Thread.__init__(self)
-        
+
         self.__semaphore = Semaphore()
         self.__graph_ui = graph_ui
         self.__graph = graph_ui.graph
@@ -25,12 +25,12 @@ class Algorithm(Thread):
 
         # To kill thread
         self.__stopped = False
-        
+
 #        self.graph = graph.graph_to_networkx()
 
         self.vertex_list = self.__graph.vertices
         self.edge_list = self.__graph.edges
-        
+
     def __run(self):
         """Hacked run function, which installs the trace."""
         settrace(self.__globaltrace)
@@ -99,7 +99,7 @@ class Algorithm(Thread):
     def __signal(self):
         """Sets free the thread to continue"""
         self.__semaphore.release()
-    
+
     def uncheck_all(self):
         """Unchecks all the vertex and edges a edge"""
         for what, boolean in list(self.__checks.items()):
@@ -123,7 +123,7 @@ class Algorithm(Thread):
         """Jump to the next state"""
         if not self.__redo():
             self.__signal()
-        
+
     def prev(self):
         """Jump to the previous state"""
         self.__undo()
@@ -144,7 +144,7 @@ class Algorithm(Thread):
         """Used to show current algorithm state"""
         self.__wait()
         self.__add_state()
-        
+
     def pause(self):
         """Used to pause current algorithm state"""
 #        self.__add_state()
@@ -154,29 +154,29 @@ class Algorithm(Thread):
         return self.__graph.find(id)
 
     def input_box(self, markup="", prompt="", secondary_markup=""):
-	    dialog = gtk.MessageDialog(
-		    None,
-		    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-		    gtk.MESSAGE_QUESTION,
-		    gtk.BUTTONS_OK,
-		    None)
-	    dialog.set_markup(markup)
-	    entry = gtk.Entry()
-	    entry.connect("activate", lambda _: dialog.response(gtk.RESPONSE_OK))
+        dialog = Gtk.MessageDialog(
+            None,
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            Gtk.MessageType.QUESTION,
+            Gtk.ButtonsType.OK,
+            None)
+        dialog.set_markup(markup)
+        entry = Gtk.Entry()
+        entry.connect("activate", lambda _: dialog.response(Gtk.ResponseType.OK))
 
-	    hbox = gtk.HBox()
-	    hbox.pack_start(gtk.Label(prompt + ":"), False, 5, 5)
-	    hbox.pack_end(entry)
+        hbox = Gtk.HBox()
+        hbox.pack_start(Gtk.Label(prompt + ":"), False, 5, 5)
+        hbox.pack_end(entry)
 
-	    dialog.format_secondary_markup(secondary_markup)
+        dialog.format_secondary_markup(secondary_markup)
 
-	    dialog.vbox.pack_end(hbox, True, True, 0)
-	    dialog.show_all()
+        dialog.vbox.pack_end(hbox, True, True, 0)
+        dialog.show_all()
 
-	    dialog.run()
-	    text = entry.get_text()
-	    dialog.destroy()
-	    return text
+        dialog.run()
+        text = entry.get_text()
+        dialog.destroy()
+        return text
 
     def set_attribute(self, what, identifier, value):
         setattr(what, "user_" + str(identifier), str(value))
@@ -186,4 +186,3 @@ class Algorithm(Thread):
 
     def remove_attribute(self, what, identifier):
         delattr(what, "user_" + str(identifier))
-

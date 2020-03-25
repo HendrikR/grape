@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os
-import ConfigParser
+import configparser
 from lib.system import  *
 from lib.logger import Logger
 
@@ -48,7 +48,7 @@ class Config(object):
 
     def load(self):
         """Reads configuration"""
-        self.config = ConfigParser.ConfigParser()
+        self.config = configparser.ConfigParser()
         try:
             if self.master_configfile:
                 self.logger.info("Reading master configfile %s" % self.master_configfile)
@@ -75,9 +75,9 @@ class Config(object):
         if not self.config.has_option(section, variable):
             self.logger.warning("Config option didn't exist: %s" % variable)
             self.config.set(section, variable, str(default))
-            self.logger.warning("Config option now have value: %s" % default)
+            self.logger.warning("Config option now has value: %s" % default)
 
-#        print "value = self.config.get(" + section + ", " + variable + ")"
+#        print("value = self.config.get(" + section + ", " + variable + ")")
         value = self.config.get(section, variable)
         
 

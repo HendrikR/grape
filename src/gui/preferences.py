@@ -1,7 +1,7 @@
 from lib.config import Config
 from lib.logger import Logger
 
-import gtk
+from gi.repository import Gtk, Gdk
 import os
 import sys
 import locale
@@ -18,7 +18,7 @@ class Preferences(object):
         self.config = Config()
         self.logger = Logger()
 
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         self.builder.add_from_file(path)
 
         self.logger.info("Creating preferences GUI")
@@ -29,11 +29,11 @@ class Preferences(object):
 
     def get_preferences(self):
         """Getting preferences from a config file"""
-        self.liststore_types = gtk.ListStore(str)
+        self.liststore_types = Gtk.ListStore(str)
         self.graph_type = self.builder.get_object("graph_type")
         self.graph_type.set_model(self.liststore_types)
-        renderer = gtk.CellRendererText()
-        self.graph_type.pack_start(renderer)
+        renderer = Gtk.CellRendererText()
+        self.graph_type.pack_start(renderer, False)
         self.graph_type.add_attribute(renderer, "text", 0)
         self.liststore_types.append([_("Graph")])
         self.liststore_types.append([_("DiGraph")])
@@ -57,12 +57,12 @@ class Preferences(object):
             if graph_type == current:
                 self.graph_type.set_active(possibles_types.index(current))
                 break
-        self.graph_color.set_color(gtk.gdk.Color(self.config.get("graph", "background-color")))
-        self.vertex_color.set_color(gtk.gdk.Color(self.config.get("vertex", "fill-color")))
-        self.vertex_border_color.set_color(gtk.gdk.Color(self.config.get("vertex", "border-color")))
+        self.graph_color.set_color(Gdk.color_parse(self.config.get("graph", "background-color")))
+        self.vertex_color.set_color(Gdk.color_parse(self.config.get("vertex", "fill-color")))
+        self.vertex_border_color.set_color(Gdk.color_parse(self.config.get("vertex", "border-color")))
         self.vertex_adjustment_radious.set_value(float(self.config.get("vertex", "size")))
         self.vertex_adjustment_border.set_value(float(self.config.get("vertex", "border-size")))
-        self.edge_color.set_color(gtk.gdk.Color(self.config.get("edge", "color")))
+        self.edge_color.set_color(Gdk.color_parse(self.config.get("edge", "color")))
         self.edge_adjustment_width.set_value(float(self.config.get("edge", "width")))
 
     def graph_type_changed(self, widget):
@@ -70,28 +70,28 @@ class Preferences(object):
         self.config.set("graph", "type", text)
 
     def graph_color_changed(self, widget):
-        self.config.set("graph", "background-color", widget.get_color())
+        self.config.set("graph", "background-color", widget.get_color().to_string())
 
     def graph_title_changed(self, widget):
         self.config.set("graph", "title", widget.get_text())
 
     def vertex_color_changed(self, widget):
-        self.config.set("vertex", "fill-color", widget.get_color())
+        self.config.set("vertex", "fill-color", widget.get_color().to_string())
 
     def vertex_border_color_changed(self, widget):
-        self.config.set("vertex", "border-color", widget.get_color())
+        self.config.set("vertex", "border-color", widget.get_color().to_string())
 
     def vertex_radious_changed(self, widget):
-        self.config.set("vertex", "size", widget.value)
+        self.config.set("vertex", "size", widget.get_value())
 
     def vertex_border_changed(self, widget):
-        self.config.set("vertex", "border-size", widget.value)
+        self.config.set("vertex", "border-size", widget.get_value())
 
     def edge_color_changed(self, widget):
-        self.config.set("edge", "color", widget.get_color())
+        self.config.set("edge", "color", widget.get_color().to_string())
 
     def edge_width_changed(self, widget):
-        self.config.set("edge", "width", widget.value)
+        self.config.set("edge", "width", widget.get_value())
 
     def confirm(self, widget):
         self.config.save()

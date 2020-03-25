@@ -1,18 +1,17 @@
-from gtk import DrawingArea, EventBox
 from lib.mathemathical import *
 from lib.edge import Edge
-import gtk
+from gi.repository import Gtk, Gdk
 import math
 
 
-class GraphArea(DrawingArea):
+class GraphArea(Gtk.DrawingArea):
     """
     Graph
     """
 
     def __init__(self, graph):
-        DrawingArea.__init__(self)
-        self.connect('expose-event', self.expose)
+        Gtk.DrawingArea.__init__(self)
+        self.connect('draw', self.expose)
 
         self.graph = graph
         self.cairo = None
@@ -55,12 +54,12 @@ class GraphArea(DrawingArea):
         elif vertex.checked:
             cairo.set_source_rgb(0.4, 0.7, 0.7)
         else:
-            cairo.set_source_color(gtk.gdk.Color(vertex.fill_color))
+            Gdk.cairo_set_source_color(cairo, Gdk.color_parse(vertex.fill_color))
 
         cairo.arc(x, y, radius, 0, 2 * math.pi)
         cairo.fill_preserve()
 
-        cairo.set_source_color(gtk.gdk.Color(vertex.border_color))
+        Gdk.cairo_set_source_color(cairo, Gdk.color_parse(vertex.border_color))
         cairo.set_line_width(vertex.border_size)
         cairo.arc(x, y, radius, 0, 2 * math.pi)
         cairo.stroke()
@@ -138,7 +137,7 @@ class GraphArea(DrawingArea):
                         cairo.set_source_rgb(0.4, 0.7, 0.7)
                         cairo.set_line_width(edge.width + 4)
                     else:
-                        cairo.set_source_color(gtk.gdk.Color(edge.color))
+                        Gdk.cairo_set_source_color(cairo, Gdk.color_parse(edge.color))
                         cairo.set_line_width(edge.width)
                     
                     cairo.move_to(x1, y1)
@@ -180,7 +179,7 @@ class GraphArea(DrawingArea):
             cairo.set_source_rgb(0.4, 0.7, 0.7)
             cairo.set_line_width(edge.width + 4)
         else:
-            cairo.set_source_color(gtk.gdk.Color(edge.color))
+            Gdk.cairo_set_source_color(cairo, Gdk.color_parse(edge.color))
             cairo.set_line_width(edge.width)
 
         
@@ -203,7 +202,7 @@ class GraphArea(DrawingArea):
             self.draw_arrow(cairo, (x1, y1), (x2, y2))
 
     def draw_graph(self, cairo, area):
-        #Creating atributte visited for each edge
+        # Creating attribute visited for each edge
         for edge in self.graph.edges:
             edge.system_visited = False
 
@@ -218,7 +217,7 @@ class GraphArea(DrawingArea):
                     else:
                         self.draw_edges(cairo, area, edge.start, edge.end)
 
-        #Removing atributte visited from each edge
+        # Removing attribute visited from each edge
         for edge in self.graph.edges:
             del edge.system_visited
 
@@ -236,20 +235,12 @@ class GraphArea(DrawingArea):
 
             self.adding_edge = None
 
-    def create_area(self, widget, event):
-        self.area = widget.get_allocation()
-
-        self.cairo = widget.window.cairo_create()
-
-        self.cairo.rectangle(0, 0, self.area.width, self.area.height)
-        self.cairo.clip()
-
     def expose(self, widget, event):
-        self.create_area(widget, event)
+        self.cairo = event
         self.cairo.scale(self.zoom, self.zoom)
-        self.cairo.rectangle(0, 0, self.area.width, self.area.height)
+        self.cairo.rectangle(0, 0, self.get_allocated_width(), self.get_allocated_height())
 
-        self.cairo.set_source_color(gtk.gdk.Color(self.graph.background_color))
+        Gdk.cairo_set_source_color(self.cairo, Gdk.color_parse(self.graph.background_color))
         self.cairo.fill()
 
         self.draw_graph(self.cairo, self.area)
